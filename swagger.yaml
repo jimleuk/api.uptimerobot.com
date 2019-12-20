@@ -25,7 +25,7 @@ paths:
         - Account
       responses:
         "401":
-          $ref: "#/components/responses/401"
+          $ref: "#/components/responses/Error"
         "200":
           description: OK
           content:
@@ -102,7 +102,9 @@ paths:
         - $ref: "#/components/parameters/MonitorSearch"
       responses:
         "401":
-          $ref: "#/components/responses/401"
+          $ref: "#/components/responses/Error"
+        "400":
+          $ref: "#/components/responses/Error"
         "200":
           description: OK
           content:
@@ -146,7 +148,9 @@ paths:
         - $ref: "#/components/parameters/MonitorIgnoreSslErrorsBOOL"
       responses:
         "401":
-          $ref: "#/components/responses/401"
+          $ref: "#/components/responses/Error"
+        "400":
+          $ref: "#/components/responses/Error"
         "200":
           description: OK
           content:
@@ -195,7 +199,36 @@ paths:
         - $ref: "#/components/parameters/MonitorIgnoreSslErrorsBOOL"
       responses:
         "401":
-          $ref: "#/components/responses/401"
+          $ref: "#/components/responses/Error"
+        "400":
+          $ref: "#/components/responses/Error"
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stat:
+                    $ref: "#/components/schemas/Stat"
+                  monitor:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+  /deleteMonitor:
+    post:
+      summary: >
+        Monitors can be deleted using this method.
+      tags:
+        - Monitors
+      parameters:
+        - $ref: "#/components/parameters/MonitorId"
+      responses:
+        "401":
+          $ref: "#/components/responses/Error"
+        "400":
+          $ref: "#/components/responses/Error"
         "200":
           description: OK
           content:
@@ -854,8 +887,9 @@ components:
           * 1 - true
       description: For ignoring SSL certificate related errors
   responses:
-    "401":
-      description: Unauthorized
+    Error:
+      description: >
+        Used for BadRequest and Unauthorized
       content:
         application/json:
           schema:
