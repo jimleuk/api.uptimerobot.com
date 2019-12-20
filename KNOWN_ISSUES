@@ -1,0 +1,2 @@
+- In error responses, official docs say "reason" is "text" but its actually an object.
+- There are no 400 responses for Bad Requests - everything is a 200. This is not(?) representable in swagger.
