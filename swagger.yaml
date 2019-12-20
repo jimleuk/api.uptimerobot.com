@@ -1,0 +1,816 @@
+openapi: 3.0.0
+info:
+  description: Unofficial Swagger Document for the UptimeRobot.com API
+  version: "2"
+  title: UptimeRobot.com
+  contact:
+    name: Jim Le
+    email: jim.le@reason.co
+    url: reason.co
+servers:
+  - url: "https://api.uptimerobot.com/v2"
+security:
+  - ApiKeyAuth: []
+tags:
+  - name: Account
+    description: Managing your account
+  - name: Monitors
+    description: Managing your monitors
+paths:
+  /getAccountDetails:
+    post:
+      summary: >
+        Account details (max number of monitors that can be added and number of up/down/paused monitors) can be grabbed using this method.
+      tags:
+        - Account
+      responses:
+        "401":
+          $ref: "#/components/responses/401"
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stat:
+                    type: string
+                    description: >
+                      exists only for JSON responses to show if any records are returned or not.
+                    $ref: "#/components/schemas/Stat"
+                  account:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        description: the account e-mail
+                      monitor_limit:
+                        type: number
+                        description: >
+                          The max number of monitors that can be created for the account
+                      monitor_interval:
+                        type: number
+                        description: >
+                          The min monitoring interval (in seconds) supported by the account
+                      up_monitors:
+                        type: number
+                        description: the number of "up" monitors
+                      down_monitors:
+                        type: number
+                        description: the number of "down" monitors
+                      paused_monitors:
+                        type: number
+                        description: the number of "paused" monitors
+  /getMonitors:
+    post:
+      summary: >
+        This is a Swiss-Army knife type of a method for getting any information on monitors.
+
+        By default, it lists all the monitors in a user's account, their friendly names, types (http, keyword, port, etc.), statuses (up, down, etc.) and uptime ratios.
+        
+        There are optional parameters which lets the getMonitors method to output information on any given monitors rather than all of them.
+        
+        And also, parameters exist for getting the notification logs (alerts) for each monitor and even which alert contacts were alerted on each notification
+      tags:
+        - Monitors
+      parameters:
+        - $ref: "#/components/parameters/MonitorMonitors"
+        - $ref: "#/components/parameters/MonitorTypes"
+        - $ref: "#/components/parameters/MonitorStatuses"
+        - $ref: "#/components/parameters/MonitorCustomUptimeRatios"
+        - $ref: "#/components/parameters/MonitorCustomUptimeRanges"
+        - $ref: "#/components/parameters/MonitorAllTimeUptimeRatioBOOL"
+        - $ref: "#/components/parameters/MonitorAllTimeUptimeDurationsBOOL"
+        - $ref: "#/components/parameters/MonitorLogsBOOL"
+        - $ref: "#/components/parameters/MonitorLogsStartDate"
+        - $ref: "#/components/parameters/MonitorLogsEndDate"
+        - $ref: "#/components/parameters/MonitorLogTypes"
+        - $ref: "#/components/parameters/MonitorLogsLimit"
+        - $ref: "#/components/parameters/MonitorResponseTimesBOOL"
+        - $ref: "#/components/parameters/MonitorResponseTimesLimit"
+        - $ref: "#/components/parameters/MonitorResponseTimesAverage"
+        - $ref: "#/components/parameters/MonitorResponseTimesStartDate"
+        - $ref: "#/components/parameters/MonitorResponseTimesEndDate"
+        - $ref: "#/components/parameters/MonitorAlertContactsBOOL"
+        - $ref: "#/components/parameters/MonitorMWindows"
+        - $ref: "#/components/parameters/MonitorSSLBOOL"
+        - $ref: "#/components/parameters/MonitorCustomHttpHeadersBOOL"
+        - $ref: "#/components/parameters/MonitorCustomHttpStatusesBOOL"
+        - $ref: "#/components/parameters/MonitorTimezoneBOOL"
+        - $ref: "#/components/parameters/PaginationOffset"
+        - $ref: "#/components/parameters/PaginationLimit"
+        - $ref: "#/components/parameters/MonitorSearch"
+      responses:
+        "401":
+          $ref: "#/components/responses/401"
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stat:
+                    $ref: "#/components/schemas/Stat"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+                  monitors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Monitor"
+  /addMonitor:
+    post:
+      summary: >
+        New monitors of any type can be created using this method
+      tags:
+        - Monitors
+      parameters:
+        - $ref: "#/components/parameters/MonitorFriendlyName"
+        - $ref: "#/components/parameters/MonitorUrl"
+        - $ref: "#/components/parameters/MonitorType"
+        - $ref: "#/components/parameters/MonitorSubType"
+        - $ref: "#/components/parameters/MonitorPort"
+        - $ref: "#/components/parameters/MonitorKeywordType"
+        - $ref: "#/components/parameters/MonitorKeywordValue"
+        - $ref: "#/components/parameters/MonitorInterval"
+        - $ref: "#/components/parameters/MonitorHttpUsername"
+        - $ref: "#/components/parameters/MonitorHttpPassword"
+        - $ref: "#/components/parameters/MonitorHttpMethod"
+        - $ref: "#/components/parameters/MonitorPostType"
+        - $ref: "#/components/parameters/MonitorPostValueJSON"
+        - $ref: "#/components/parameters/MonitorPostContentType"
+        - $ref: "#/components/parameters/MonitorAlertContacts"
+        - $ref: "#/components/parameters/MonitorMWindows"
+        - $ref: "#/components/parameters/MonitorCustomHttpHeadersJSON"
+        - $ref: "#/components/parameters/MonitorCustomHttpStatuses"
+        - $ref: "#/components/parameters/MonitorIgnoreSslErrorsBOOL"
+      responses:
+        "401":
+          $ref: "#/components/responses/401"
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stat:
+                    $ref: "#/components/schemas/Stat"
+                  monitor:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      status:
+                        $ref: "#/components/schemas/MonitorState"
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: query
+      name: api_key
+  schemas:
+    Stat:
+      type: string
+      description: exists only for JSON responses to show if any records are returned or not.
+      enum:
+        - ok
+        - fail
+    Pagination:
+      type: object
+      properties:
+        offset:
+          type: object
+          properties:
+            type:
+              type: number
+            limit:
+              type: number
+            total:
+              type: number
+    Monitor:
+      type: object
+      properties:
+        id:
+          type: number
+          description: The ID of the monitor (can be used for monitor-specific requests).
+        friendly_name:
+          type: string
+          description: The friendly name of the monitor.
+        url:
+          type: string
+          description: the URL/IP of the monitor.
+        type:
+          $ref: "#/components/schemas/MonitorType"
+        sub_type:
+          $ref: "#/components/schemas/MonitorSubType"
+        keyword_type:
+          $ref: "#/components/schemas/MonitorKeywordType"
+        keyword_value:
+          type: string
+          description: The value of the keyword.
+        http_username:
+          type: string
+          description: Used for password-protected web pages (HTTP Basic Auth). Available for HTTP and keyword monitoring.
+        http_password:
+          type: string
+          description: Used for password-protected web pages (HTTP Basic Auth). Available for HTTP and keyword monitoring.
+        port:
+          type: number
+          description: Used only for "Port monitoring (monitor>type = 4)" and shows the port monitored.
+        interval:
+          type: number
+          description: the interval for the monitoring check (300 seconds by default).
+        status:
+          $ref: "#/components/schemas/MonitorState"
+        create_datetime:
+          type: number
+        monitor_group:
+          type: number
+        is_group_main:
+          type: number
+          enum: [0, 1]
+          description: >
+            * 0 - false
+
+            * 1 - true
+        logs:
+          type: array
+          items:
+            $ref: "#/components/schemas/MonitorLog"
+    MonitorType:
+      type: number
+      enum: [1, 2, 3, 4]
+      description: >
+        The type of the monitor.
+
+        * 1 - HTTP(s)
+
+        * 2 - Keyword
+
+        * 3 - Ping
+
+        * 4 - Port
+    MonitorSubType:
+      type: number
+      enum: [1, 2, 3, 4, 5, 6, 99]
+      description: >
+        Used only for "Port monitoring (monitor>type = 4)" and shows which pre-defined port/service is monitored or if a custom port is monitored.
+
+        * 1 - HTTP (80)
+
+        * 2 - HTTPS (443)
+
+        * 3 - FTP (21)
+
+        * 4 - SMTP (25)
+
+        * 5 - POP3 (110)
+
+        * 6 - IMAP (143)
+
+        * 99 - Custom Port
+    MonitorState:
+      type: number
+      enum: [0, 1, 2, 8, 9]
+      example: 1
+      description: >
+        The status of the monitor. When used with the editMonitor method 0 (to pause) or 1 (to start) can be sent.
+
+        * 0 - paused
+
+        * 1 - not checked yet
+
+        * 2 - up
+
+        * 8 - seems down
+
+        * 9 - down
+    MonitorEvent:
+      type: number
+      enum: [1, 2, 99, 98]
+      description: >
+        The value of the keyword.
+
+        * 1 - down
+
+        * 2 - up
+
+        * 99 - paused
+
+        * 98 - started
+    MonitorLog:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/MonitorEvent"
+        datetime:
+          type: number
+          description: Unix Time. The date and time of the log (inherits the user's timezone setting).
+        duration:
+          type: number
+          description: The duration of the downtime in seconds.
+        reason:
+          type: object
+          description: the reason of the downtime (if exists).
+          properties:
+            code:
+              $ref: "#/components/schemas/MonitorEvent"
+            detail:
+              type: string
+    MonitorKeywordType:
+      type: number
+      enum: [1, 2]
+      description: >
+        Used only for "Keyword monitoring (monitor>type = 2)" and shows "if the monitor will be flagged as down when the keyword exists or not exists".
+
+        * 1 - exists
+
+        * 2 - not exists
+  parameters:
+    MonitorMonitors:
+      in: query
+      name: monitors
+      required: false
+      schema:
+        type: string
+      description: >
+        If not used, will return all monitors in an account.
+        Else, it is possible to define any number of monitors with their IDs like: monitors=15830-32696-83920
+    MonitorTypes:
+      in: query
+      name: types
+      required: false
+      schema:
+        type: string
+      description: >
+        If not used, will return all monitors types (HTTP, keyword, ping..) in an account.
+        Else, it is possible to define any number of monitor types like: types=1-3-4
+    MonitorStatuses:
+      in: query
+      name: statuses
+      required: false
+      schema:
+        type: string
+      description: >
+        If not used, will return all monitors statuses (up, down, paused) in an account.
+        Else, it is possible to define any number of monitor statuses like: statuses=2-9
+    MonitorCustomUptimeRatios:
+      in: query
+      name: custom_uptime_ratios
+      required: false
+      schema:
+        type: string
+      description: >
+        Defines the number of days to calculate the uptime ratio(s) for. 
+        Ex: custom_uptime_ratios=7-30-45 to get the uptime ratios for those periods
+    MonitorCustomUptimeRanges:
+      in: query
+      name: custom_uptime_ranges
+      required: false
+      schema:
+        type: string
+      description: >
+        Defines the ranges to calculate the uptime ratio(s) for.
+        Ex: custom_uptime_ranges=1465440758_1466304758 to get the uptime ratios for those periods. It is possible to send multiple ranges like 1465440758_1466304758-1434682358_1434855158
+    MonitorAllTimeUptimeRatioBOOL:
+      in: query
+      name: all_time_uptime_ratio
+      required: false
+      schema:
+        type: number
+        default: 0
+        enum: [0, 1]
+      description: >
+        Returns the "all time uptime ratio".
+        It will slow down the response a bit and, if not really necessary, suggest not using it. Default is 0
+
+        * 0 - false
+
+        * 1 - true
+    MonitorAllTimeUptimeDurationsBOOL:
+      in: query
+      name: all_time_uptime_durations
+      required: false
+      schema:
+        type: number
+        default: 0
+        enum: [0, 1]
+      description: >
+        Returns the "all time durations of up-down-paused events".
+        It will slow down the response a bit and, if not really necessary, suggest not using it. Default is 0
+
+        * 0 - false
+
+        * 1 - true
+    MonitorLogsBOOL:
+      in: query
+      name: logs
+      required: false
+      schema:
+        type: number
+        default: 0
+        enum: [0, 1]
+      description: >
+        Defines if the logs of each monitor will be returned. Should be set to 1 for getting the logs. Default is 0
+
+        * 0 - false
+
+        * 1 - true
+    MonitorLogsStartDate:
+      in: query
+      name: logs_start_date
+      required: false
+      schema:
+        type: string
+      description: >
+        PRO: works only for the Pro Plan as 24 hour+ logs are kept only in the Pro Plan, formatted as Unix time and must be used with logs_end_date
+    MonitorLogsEndDate:
+      in: query
+      name: logs_end_date
+      required: false
+      schema:
+        type: string
+      description: >
+        PRO: works only for the Pro Plan as 24 hour+ logs are kept only in the Pro Plan, formatted as Unix time and must be used with logs_start_date
+    MonitorLogTypes:
+      in: query
+      name: log_types
+      required: false
+      schema:
+        type: string
+      description: >
+        The types of logs to be returned with a usage like: log_types=1-2-98).
+        If empty, all log types are returned.
+    MonitorLogsLimit:
+      in: query
+      name: logs_limit
+      required: false
+      schema:
+        type: number
+        default: "0"
+      description: >
+        The number of logs to be returned in descending order.
+        If empty, all logs are returned.
+    MonitorResponseTimesBOOL:
+      in: query
+      name: response_times
+      required: false
+      schema:
+        type: number
+        default: 0
+        enum: [0, 1]
+      description: >
+        Defines if the response time data of each monitor will be returned.
+        Should be set to 1 for getting them. Default is 0
+
+        * 0 - false
+
+        * 1 - true
+    MonitorResponseTimesLimit:
+      in: query
+      name: response_times_limit
+      required: false
+      schema:
+        type: number
+      description: >
+        The number of response time logs to be returned (descending order).
+        If empty, last 24 hours of logs are returned (if response_times_start_date and response_times_end_date are not used)
+    MonitorResponseTimesAverage:
+      in: query
+      name: response_times_average
+      required: false
+      schema:
+        type: number
+      description: >
+        By default, response time value of each check is returned.
+        The API can return average values in given minutes.
+        Default is 0.
+        For ex: the Uptime Robot dashboard displays the data averaged/grouped in 30 minutes
+    MonitorResponseTimesStartDate:
+      in: query
+      name: response_times_start_date
+      required: false
+      schema:
+        type: string
+      description: >
+        Formatted as Unix time and must be used with response_times_end_date) (response_times_end_date - response_times_start_date can't be more than 7 days)
+    MonitorResponseTimesEndDate:
+      in: query
+      name: response_times_end_date
+      required: false
+      schema:
+        type: string
+      description: >
+        Formatted as Unix time and must be used with response_times_start_date (response_times_end_date - response_times_start_date can't be more than 7 days)
+    MonitorAlertContactsBOOL:
+      in: query
+      name: alert_contacts
+      required: false
+      schema:
+        type: number
+        default: 0
+        enum: [0, 1]
+      description: >
+        Defines if the alert contacts set for the monitor to be returned
+        Default is 0.
+
+        * 0 - false
+
+        * 1 - true
+    MonitorMWindows:
+      in: query
+      name: mwindows
+      required: false
+      schema:
+        type: string
+      description: >
+        The maintenance windows for the monitor which can be mentioned with their IDs like 345-2986-71
+    MonitorSSLBOOL:
+      in: query
+      name: ssl
+      required: false
+      schema:
+        type: number
+        default: 0
+        enum: [0, 1]
+      description: >
+        Defines if SSL certificate info for each monitor will be returned
+
+        * 0 - false
+
+        * 1 - true
+    MonitorCustomHttpHeadersBOOL:
+      in: query
+      name: custom_http_headers
+      required: false
+      schema:
+        type: number
+        default: 0
+        enum: [0, 1]
+      description: >
+        Defines if the custom HTTP headers of each monitor will be returned.
+        Should be set to 1 for getting them. Default is 0
+
+        * 0 - false
+
+        * 1 - true
+    MonitorCustomHttpStatusesBOOL:
+      in: query
+      name: custom_http_statuses
+      required: false
+      schema:
+        type: number
+        default: 0
+        enum: [0, 1]
+      description: >
+        Defines if the custom HTTP statuses of each monitor will be returned.
+        Should be set to 1 for getting them. Default is 0
+        
+        * 0 - false
+
+        * 1 - true
+    MonitorTimezoneBOOL:
+      in: query
+      name: timezone
+      required: false
+      schema:
+        type: number
+        default: 0
+        enum: [0, 1]
+      description: >
+        Defines if the user's timezone should be returned.
+        Should be set to 1 for getting it. Default is 0
+
+        * 0 - false
+
+        * 1 - true
+    PaginationOffset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: number
+        default: "0"
+      description: >
+        Used for pagination.
+        Defines the record to start paginating. Default is 0
+    PaginationLimit:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: number
+        default: 50
+        minimum: 0
+        maximum: 50
+      description: >
+        Used for pagination.
+        Defines the max number of records to return for the response. 
+        Default and max. is 50
+    MonitorSearch:
+      in: query
+      name: search
+      required: false
+      schema:
+        type: string
+      description: >
+        A keyword of your choice to search within url and friendly_name and get filtered results
+    MonitorFriendlyName:
+      in: query
+      name: friendly_name
+      required: true
+      schema:
+        type: string
+      description: The friendly name of the monitor
+    MonitorUrl:
+      in: query
+      name: url
+      required: true
+      schema:
+        type: string
+      description: The URL/IP of the monitor
+    MonitorType:
+      in: query
+      name: type
+      required: true
+      schema:
+        $ref: "#/components/schemas/MonitorType"
+    MonitorSubType:
+      in: query
+      name: sub_type
+      required: false
+      schema:
+        $ref: "#/components/schemas/MonitorSubType"
+      description: Required for port monitoring
+    MonitorPort:
+      in: query
+      name: port
+      required: false
+      schema:
+        type: number
+        description: Required for port monitoring
+    MonitorKeywordType:
+      in: query
+      name: keyword_type
+      required: false
+      schema:
+        $ref: "#/components/schemas/MonitorKeywordType"
+      description: Required for keyword monitoring
+    MonitorKeywordValue:
+      in: query
+      name: keyword_value
+      required: false
+      schema:
+        type: string
+        description: Required for keyword monitoring
+    MonitorInterval:
+      in: query
+      name: interval
+      required: false
+      schema:
+        type: number
+      description: In seconds
+    MonitorHttpUsername:
+      in: query
+      name: http_username
+      required: false
+      schema:
+        type: string
+      description: >
+        Used for password-protected web pages (HTTP Basic Auth). Available for HTTP and keyword monitoring.
+    MonitorHttpPassword:
+      in: query
+      name: http_password
+      required: false
+      schema:
+        type: string
+      description: >
+        Used for password-protected web pages (HTTP Basic Auth). Available for HTTP and keyword monitoring.
+    MonitorHttpMethod:
+      in: query
+      name: http_method
+      required: false
+      schema:
+        type: number
+        enum: [1, 2, 3, 4, 5, 6, 7]
+        description: >
+          * 1 - HEAD
+
+          * 2 - GET
+
+          * 3 - POST
+
+          * 4 - PUT
+
+          * 5 - PATCH
+
+          * 6 - DELETE
+
+          * 7 - OPTIONS
+      description: The HTTP method to be used
+    MonitorPostType:
+      in: query
+      name: post_type
+      required: false
+      schema:
+        type: number
+        enum: [1, 2]
+        description: >
+          * 1 - key-value
+
+          * 2 - raw data
+      description: >
+        The format of data to be sent with POST, PUT, PATCH, DELETE, OPTIONS HTTP methods
+    MonitorPostValueJSON:
+      in: query
+      name: post_value
+      required: false
+      schema:
+        type: string
+      description: >
+        Must be sent as a JSON object. The data to be sent with POST, PUT, PATCH, DELETE, OPTIONS HTTP methods
+    MonitorPostContentType:
+      in: query
+      name: post_content_type
+      required: false
+      schema:
+        type: number
+        enum: [0, 1]
+        description: >
+          * 0 - text/html
+
+          * 1 - application/json
+      description: >
+        sets the Content-Type for POST, PUT, PATCH, DELETE, OPTIONS HTTP methods
+    MonitorAlertContacts:
+      in: query
+      name: alert_contacts
+      required: false
+      schema:
+        type: string
+      description: >
+        The alert contacts to be notified when the monitor goes up/down.
+        Multiple alert_contact>ids can be sent like alert_contacts=457_0_0-373_5_0-8956_2_3 where
+        alert_contact>ids are seperated with - and threshold + recurrence are seperated with _.
+
+        For ex: alert_contacts=457_5_0 refers to 457 being the alert_contact>id,5 being the threshold
+        and 0 being the recurrence.
+
+        PRO: As the threshold and recurrence is only available in the Pro Plan, they are always 0 in the Free Plan
+    MonitorCustomHttpHeadersJSON:
+      in: query
+      name: custom_http_headers
+      required: false
+      schema:
+        type: string
+      description: >
+        Must be sent as a JSON object. Used for setting custom HTTP headers for the monitor
+    MonitorCustomHttpStatuses:
+      in: query
+      name: custom_http_statuses
+      required: false
+      schema:
+        type: string
+      description: >
+        Must be sent as 404:0_200:1 to accept 404 as down and 200 as up
+    MonitorIgnoreSslErrorsBOOL:
+      in: query
+      name: ignore_ssl_errors
+      required: false
+      schema:
+        type: number
+        enum: [0, 1]
+        default: 0
+        description: >
+          * 0 - false
+
+          * 1 - true
+      description: For ignoring SSL certificate related errors
+  responses:
+    "401":
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              stat:
+                $ref: "#/components/schemas/Stat"
+              error:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum:
+                      - invalid_parameter
+                      - missing_parameter
+                  parameter_name:
+                    type: string
+                  passed_value:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - type
+                  - parameter_name
