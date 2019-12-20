@@ -6,7 +6,7 @@ info:
   contact:
     name: Jim Le
     email: jim.le@reason.co
-    url: reason.co
+    url: https://reason.co
 servers:
   - url: "https://api.uptimerobot.com/v2"
 security:
