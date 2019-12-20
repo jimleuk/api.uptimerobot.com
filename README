@@ -1,0 +1,14 @@
+# Unofficial Api.UptimeRobot.com v2
+
+This repo contains an unofficial swagger document of the UptimeRobot.com API v2. It is written to the [OpenApi v3 spec]([https://swagger.io/docs/specification/about/](https://swagger.io/docs/specification/about/)) and tested to render correctly in [swagger.io editor]([https://editor.swagger.io/](https://editor.swagger.io/)).
+
+Please visit [https://uptimerobot.com/api](https://uptimerobot.com/api) for the official documentation.
+
+## Disclaimers
+1) This document is not endorsed by or affliated with with UptimeRobot.com.
+2) This is not a 100% representation of the API Spec. Please see KNOWN_ISSUES.
+3) This document is not guaranteed to be up-to-date with the official spec.
+
+## Licence
+
+See LICENCE
