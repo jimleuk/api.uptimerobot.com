@@ -243,6 +243,33 @@ paths:
                     properties:
                       id:
                         type: number
+  /resetMonitor:
+    post:
+      summary: >
+        Monitors can be reset (deleting all stats and response time data) using this method.
+      tags:
+        - Monitors
+      parameters:
+        - $ref: "#/components/parameters/MonitorId"
+      responses:
+        "401":
+          $ref: "#/components/responses/Error"
+        "400":
+          $ref: "#/components/responses/Error"
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stat:
+                    $ref: "#/components/schemas/Stat"
+                  monitor:
+                    type: object
+                    properties:
+                      id:
+                        type: number
 components:
   securitySchemes:
     ApiKeyAuth:
