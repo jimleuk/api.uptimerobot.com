@@ -163,6 +163,53 @@ paths:
                         type: number
                       status:
                         $ref: "#/components/schemas/MonitorState"
+  /editMonitor:
+    post:
+      summary: >
+        Monitors can be edited using this method.
+
+        Important: The type of a monitor can not be edited (like changing a HTTP monitor into a Port monitor).
+        For such cases, deleting the monitor and re-creating a new one is adviced.
+      tags:
+        - Monitors
+      parameters:
+        - $ref: "#/components/parameters/MonitorId"
+        - $ref: "#/components/parameters/MonitorFriendlyName"
+        - $ref: "#/components/parameters/MonitorUrl"
+        - $ref: "#/components/parameters/MonitorSubType"
+        - $ref: "#/components/parameters/MonitorPort"
+        - $ref: "#/components/parameters/MonitorKeywordType"
+        - $ref: "#/components/parameters/MonitorKeywordValue"
+        - $ref: "#/components/parameters/MonitorInterval"
+        - $ref: "#/components/parameters/MonitorStatusBOOL"
+        - $ref: "#/components/parameters/MonitorHttpUsername"
+        - $ref: "#/components/parameters/MonitorHttpPassword"
+        - $ref: "#/components/parameters/MonitorHttpMethod"
+        - $ref: "#/components/parameters/MonitorPostType"
+        - $ref: "#/components/parameters/MonitorPostValueJSON"
+        - $ref: "#/components/parameters/MonitorPostContentType"
+        - $ref: "#/components/parameters/MonitorAlertContacts"
+        - $ref: "#/components/parameters/MonitorMWindows"
+        - $ref: "#/components/parameters/MonitorCustomHttpHeadersJSON"
+        - $ref: "#/components/parameters/MonitorCustomHttpStatuses"
+        - $ref: "#/components/parameters/MonitorIgnoreSslErrorsBOOL"
+      responses:
+        "401":
+          $ref: "#/components/responses/401"
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stat:
+                    $ref: "#/components/schemas/Stat"
+                  monitor:
+                    type: object
+                    properties:
+                      id:
+                        type: number
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -328,6 +375,13 @@ components:
 
         * 2 - not exists
   parameters:
+    MonitorId:
+      in: query
+      name: id
+      required: true
+      schema:
+        type: number
+      description: the ID of the monitor to be edited
     MonitorMonitors:
       in: query
       name: monitors
@@ -355,6 +409,18 @@ components:
       description: >
         If not used, will return all monitors statuses (up, down, paused) in an account.
         Else, it is possible to define any number of monitor statuses like: statuses=2-9
+    MonitorStatusBOOL:
+      in: query
+      name: status
+      required: false
+      schema:
+        type: number
+        enum: [0, 1]
+        description: >
+          * 0 for pause
+
+          * 1 for resume
+      description: Sets the status of the monitor
     MonitorCustomUptimeRatios:
       in: query
       name: custom_uptime_ratios
