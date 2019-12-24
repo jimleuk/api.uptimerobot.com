@@ -1,7 +1,7 @@
 - In error responses, official docs say "reason" is "text" but its actually an object.
 - /deleteMonitor, editMonitor, resetMonitor: uses SingleMonitorResponse, but returns Partial<SingleMonitorResponse>
 - Using "oneOf" for responses means swagger editor cannot (at time of writing) generate the examples.
-- /newAlertContact response uses SingleAlertContactResponse but returns Partial<SingleAlertContactResponse>
+- /newAlertContact, editAlertContact response uses SingleAlertContactResponse but returns Partial<SingleAlertContactResponse>
 
 Suggestions:
 

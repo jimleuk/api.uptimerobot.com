@@ -182,6 +182,19 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/SingleAlertContactResponse"
+  /editAlertContact:
+    post:
+      summary: >
+        Alert contacts can be edited using this method.
+      tags:
+        - Alert Contacts
+      parameters:
+        - $ref: "#/components/parameters/AlertContactId"
+        - $ref: "#/components/parameters/AlertContactFriendlyName"
+        - $ref: "#/components/parameters/AlertContactWebhookValue"
+      responses:
+        "200":
+          $ref: "#/components/responses/SingleAlertContactResponse"
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -1098,6 +1111,14 @@ components:
         type: string
       description: >
         Alert contact's address/phone
+    AlertContactWebhookValue:
+      in: query
+      name: value
+      required: false
+      schema:
+        type: string
+      description: >
+        Can only be used if it is a web-hook alert contact
     AlertContactFriendlyName:
       in: query
       name: friendly_name
@@ -1106,3 +1127,11 @@ components:
         type: string
       description: >
         Friendly name of the alert contact (for making it easier to distinguish from others)
+    AlertContactId:
+      in: query
+      name: id
+      required: true
+      schema:
+          type: string
+      description: >
+        The ID of the alert contact.
