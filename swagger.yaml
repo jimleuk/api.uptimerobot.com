@@ -24,43 +24,8 @@ paths:
       tags:
         - Account
       responses:
-        "401":
-          $ref: "#/components/responses/Error"
         "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  stat:
-                    type: string
-                    description: >
-                      exists only for JSON responses to show if any records are returned or not.
-                    $ref: "#/components/schemas/Stat"
-                  account:
-                    type: object
-                    properties:
-                      email:
-                        type: string
-                        description: the account e-mail
-                      monitor_limit:
-                        type: number
-                        description: >
-                          The max number of monitors that can be created for the account
-                      monitor_interval:
-                        type: number
-                        description: >
-                          The min monitoring interval (in seconds) supported by the account
-                      up_monitors:
-                        type: number
-                        description: the number of "up" monitors
-                      down_monitors:
-                        type: number
-                        description: the number of "down" monitors
-                      paused_monitors:
-                        type: number
-                        description: the number of "paused" monitors
+          $ref: "#/components/responses/AccountResponse"
   /getMonitors:
     post:
       summary: >
@@ -101,25 +66,8 @@ paths:
         - $ref: "#/components/parameters/PaginationLimit"
         - $ref: "#/components/parameters/MonitorSearch"
       responses:
-        "401":
-          $ref: "#/components/responses/Error"
-        "400":
-          $ref: "#/components/responses/Error"
         "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  stat:
-                    $ref: "#/components/schemas/Stat"
-                  pagination:
-                    $ref: "#/components/schemas/Pagination"
-                  monitors:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Monitor"
+          $ref: "#/components/responses/ListMonitorResponse"
   /addMonitor:
     post:
       summary: >
@@ -147,26 +95,8 @@ paths:
         - $ref: "#/components/parameters/MonitorCustomHttpStatuses"
         - $ref: "#/components/parameters/MonitorIgnoreSslErrorsBOOL"
       responses:
-        "401":
-          $ref: "#/components/responses/Error"
-        "400":
-          $ref: "#/components/responses/Error"
         "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  stat:
-                    $ref: "#/components/schemas/Stat"
-                  monitor:
-                    type: object
-                    properties:
-                      id:
-                        type: number
-                      status:
-                        $ref: "#/components/schemas/MonitorState"
+          $ref: "#/components/responses/SingleMonitorResponse"
   /editMonitor:
     post:
       summary: >
@@ -198,24 +128,8 @@ paths:
         - $ref: "#/components/parameters/MonitorCustomHttpStatuses"
         - $ref: "#/components/parameters/MonitorIgnoreSslErrorsBOOL"
       responses:
-        "401":
-          $ref: "#/components/responses/Error"
-        "400":
-          $ref: "#/components/responses/Error"
         "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  stat:
-                    $ref: "#/components/schemas/Stat"
-                  monitor:
-                    type: object
-                    properties:
-                      id:
-                        type: number
+          $ref: "#/components/responses/SingleMonitorResponse"
   /deleteMonitor:
     post:
       summary: >
@@ -225,24 +139,8 @@ paths:
       parameters:
         - $ref: "#/components/parameters/MonitorId"
       responses:
-        "401":
-          $ref: "#/components/responses/Error"
-        "400":
-          $ref: "#/components/responses/Error"
         "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  stat:
-                    $ref: "#/components/schemas/Stat"
-                  monitor:
-                    type: object
-                    properties:
-                      id:
-                        type: number
+          $ref: "#/components/responses/SingleMonitorResponse"
   /resetMonitor:
     post:
       summary: >
@@ -252,24 +150,8 @@ paths:
       parameters:
         - $ref: "#/components/parameters/MonitorId"
       responses:
-        "401":
-          $ref: "#/components/responses/Error"
-        "400":
-          $ref: "#/components/responses/Error"
         "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  stat:
-                    $ref: "#/components/schemas/Stat"
-                  monitor:
-                    type: object
-                    properties:
-                      id:
-                        type: number
+          $ref: "#/components/responses/SingleMonitorResponse"
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -295,6 +177,30 @@ components:
               type: number
             total:
               type: number
+    Account:
+      description: user account
+      type: object
+      properties:
+        email:
+          type: string
+          description: the account e-mail
+        monitor_limit:
+          type: number
+          description: >
+            The max number of monitors that can be created for the account
+        monitor_interval:
+          type: number
+          description: >
+            The min monitoring interval (in seconds) supported by the account
+        up_monitors:
+          type: number
+          description: the number of "up" monitors
+        down_monitors:
+          type: number
+          description: the number of "down" monitors
+        paused_monitors:
+          type: number
+          description: the number of "paused" monitors
     Monitor:
       type: object
       properties:
@@ -434,6 +340,94 @@ components:
         * 1 - exists
 
         * 2 - not exists
+    AccountResponse:
+      description: >
+        Returns an account
+      type: object
+      properties:
+        stat:
+          $ref: "#/components/schemas/Stat"
+        account:
+          $ref: "#/components/schemas/Account"
+    ListMonitorResponse:
+      description: >
+        Returns a paginated list of Monitors
+      type: object
+      properties:
+        stat:
+          $ref: "#/components/schemas/Stat"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        monitors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Monitor"
+    SingleMonitorResponse:
+      description: >
+        Returns the affected Monitor
+      type: object
+      properties:
+        stat:
+          $ref: "#/components/schemas/Stat"
+        monitor:
+          type: object
+          properties:
+            id:
+              type: number
+            status:
+              $ref: "#/components/schemas/MonitorState"
+    ErrorResponse:
+      description: >
+        Used for BadRequest and Unauthorized
+      type: object
+      properties:
+        stat:
+          $ref: "#/components/schemas/Stat"
+        error:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - invalid_parameter
+                - missing_parameter
+            parameter_name:
+              type: string
+            passed_value:
+              type: string
+            message:
+              type: string
+          required:
+            - type
+            - parameter_name
+  responses:
+    AccountResponse:
+      description: >
+        Returns an account
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/AccountResponse"
+              - $ref: "#/components/schemas/ErrorResponse"
+    ListMonitorResponse:
+      description: >
+        Returns a paginated list of Monitors or an Error
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/ListMonitorResponse"
+              - $ref: "#/components/schemas/ErrorResponse"
+    SingleMonitorResponse:
+      description: >
+        Returns the affected Monitor
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/SingleMonitorResponse"
+              - $ref: "#/components/schemas/ErrorResponse"
   parameters:
     MonitorId:
       in: query
@@ -913,31 +907,3 @@ components:
 
           * 1 - true
       description: For ignoring SSL certificate related errors
-  responses:
-    Error:
-      description: >
-        Used for BadRequest and Unauthorized
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              stat:
-                $ref: "#/components/schemas/Stat"
-              error:
-                type: object
-                properties:
-                  type:
-                    type: string
-                    enum:
-                      - invalid_parameter
-                      - missing_parameter
-                  parameter_name:
-                    type: string
-                  passed_value:
-                    type: string
-                  message:
-                    type: string
-                required:
-                  - type
-                  - parameter_name

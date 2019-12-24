@@ -1,2 +1,3 @@
 - In error responses, official docs say "reason" is "text" but its actually an object.
-- There are no 400 responses for Bad Requests - everything is a 200. This is not(?) representable in swagger.
+- /deleteMonitor, editMonitor, resetMonitor: uses SingleMonitorResponse, but does not return MonitorState
+- Using "oneOf" for responses means swagger editor cannot (at time of writing) generate the examples.
