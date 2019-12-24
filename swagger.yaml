@@ -185,13 +185,24 @@ paths:
   /editAlertContact:
     post:
       summary: >
-        Alert contacts can be edited using this method.
+        Alert contacts can be edited using this method
       tags:
         - Alert Contacts
       parameters:
         - $ref: "#/components/parameters/AlertContactId"
         - $ref: "#/components/parameters/AlertContactFriendlyName"
         - $ref: "#/components/parameters/AlertContactWebhookValue"
+      responses:
+        "200":
+          $ref: "#/components/responses/SingleAlertContactResponse"
+  /deleteAlertContact:
+    post:
+      summary: >
+        Alert contacts can be deleted using this method
+      tags:
+        - Alert Contacts
+      parameters:
+        - $ref: "#/components/parameters/AlertContactId"
       responses:
         "200":
           $ref: "#/components/responses/SingleAlertContactResponse"
