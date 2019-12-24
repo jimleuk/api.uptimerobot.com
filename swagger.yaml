@@ -167,6 +167,21 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/ListAlertContactResponse"
+  /newAlertContact:
+    post:
+      summary: >
+        New alert contacts of any type (mobile/SMS alert contacts are not supported yet) can be created using this method
+
+        The alert contacts created using the API are validated with the same way as they were created from uptimerobot.com (activation link for e-mails, etc.)
+      tags:
+        - Alert Contacts
+      parameters:
+        - $ref: "#/components/parameters/AlertContactType"
+        - $ref: "#/components/parameters/AlertContactValue"
+        - $ref: "#/components/parameters/AlertContactFriendlyName"
+      responses:
+        "200":
+          $ref: "#/components/responses/SingleAlertContactResponse"
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -479,6 +494,15 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AlertContact"
+    SingleAlertContactResponse:
+      description: >
+        Returns an Alert Contact
+      type: object
+      properties:
+        stat:
+          $ref: "#/components/schemas/Stat"
+        alertcontact:
+          $ref: "#/components/schemas/AlertContact"
     ErrorResponse:
       description: >
         Used for BadRequest and Unauthorized
@@ -539,6 +563,15 @@ components:
           schema:
             oneOf:
               - $ref: "#/components/schemas/ListAlertContactResponse"
+              - $ref: "#/components/schemas/ErrorResponse"
+    SingleAlertContactResponse:
+      description: >
+        Returns an Alert Contact or an Error
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/SingleAlertContactResponse"
               - $ref: "#/components/schemas/ErrorResponse"
   parameters:
     MonitorId:
@@ -1029,3 +1062,47 @@ components:
         If not used, will return all alert contacts in an account.
 
         Else, it is possible to define any number of alert contacts with their IDs like: alert_contacts=236-1782-4790
+    AlertContactType:
+      in: query
+      name: type
+      required: true
+      schema:
+        $ref: "#/components/schemas/AlertContactType"
+      description: >
+        The type of the alert contact notified (Zapier, HipChat and Slack are not supported in the newAlertContact method yet)
+
+        * 1 - SMS
+
+        * 2 - E-mail
+
+        * 3 - Twitter DM
+
+        * 4 - Boxcar
+
+        * 5 - Web-Hook
+
+        * 6 - Pushbullet
+
+        * 7 - Zapier
+
+        * 9 - Pushover
+
+        * 10 - HipChat
+
+        * 11 - Slack
+    AlertContactValue:
+      in: query
+      name: value
+      required: true
+      schema:
+        type: string
+      description: >
+        Alert contact's address/phone
+    AlertContactFriendlyName:
+      in: query
+      name: friendly_name
+      required: false
+      schema:
+        type: string
+      description: >
+        Friendly name of the alert contact (for making it easier to distinguish from others)
