@@ -16,6 +16,8 @@ tags:
     description: Managing your account
   - name: Monitors
     description: Managing your monitors
+  - name: Alert Contacts
+    description: Managing your alert contacts
 paths:
   /getAccountDetails:
     post:
@@ -152,6 +154,19 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/SingleMonitorResponse"
+  /getAlertContacts:
+    post:
+      summary: >
+        The list of alert contacts can be called with this method.
+      tags:
+        - Alert Contacts
+      parameters:
+        - $ref: "#/components/parameters/AlertContacts"
+        - $ref: "#/components/parameters/PaginationOffset"
+        - $ref: "#/components/parameters/PaginationLimit"
+      responses:
+        "200":
+          $ref: "#/components/responses/ListAlertContactResponse"
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -340,6 +355,77 @@ components:
         * 1 - exists
 
         * 2 - not exists
+    AlertContact:
+      type: object
+      properties:
+        id:
+          type: number
+          description: >
+            The ID of the alert contact.
+        friendly_name:
+          type: string
+          description: >
+            Friendly name of the alert contact (for making it easier to distinguish from others)
+        type:
+          $ref: "#/components/schemas/AlertContactType"
+        status:
+          $ref: "#/components/schemas/AlertContactState"
+        value:
+          type: string
+          description: >
+            Alert contact's address/phone.
+    AlertContactType:
+      type: number
+      enum: [1,2,3,4,5,6,7,9,10,11]
+      description: >
+        The type of the alert contact notified (Zapier, HipChat and Slack are not supported in the newAlertContact method yet)
+
+        * 1 - SMS
+
+        * 2 - E-mail
+
+        * 3 - Twitter DM
+
+        * 4 - Boxcar
+
+        * 5 - Web-Hook
+
+        * 6 - Pushbullet
+
+        * 7 - Zapier
+
+        * 9 - Pushover
+
+        * 10 - HipChat
+
+        * 11 - Slack
+    AlertContactState:
+      type: number
+      enum: [0,1,2]
+      description: >
+        The status of the alert contact
+
+        * 0 - not activated
+
+        * 1 - paused
+
+        * 2 - active
+    AlertContactThreshold:
+      type: number
+      enum: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,20,30,35,40,45,50,55,60,70,80,90,100,110,120,150,180,210,240,270,300,360,420,480,540,600,660,720]
+      description: >
+        PRO: The x value that is set to define "if down for x minutes, alert every y minutes
+
+        Possible values:
+        0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,20,30,35,40,45,50,55,60,70,80,90,100,110,120,150,180,210,240,270,300,360,420,480,540,600,660,720
+    AlertContactRecurrence:
+      type: number
+      enum: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,20,30,35,40,45,50,55,60]
+      description: >
+        PRO: The y value that is set to define "if down for x minutes, alert every y minutes
+
+        Possible values:
+        0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,20,30,35,40,45,50,55,60
     AccountResponse:
       description: >
         Returns an account
@@ -376,6 +462,23 @@ components:
               type: number
             status:
               $ref: "#/components/schemas/MonitorState"
+    ListAlertContactResponse:
+      description: >
+        Returns a list of Alert Contacts
+      type: object
+      properties:
+        stat:
+          $ref: "#/components/schemas/Stat"
+        limit:
+          type: number
+        offset:
+          type: number
+        total:
+          type: number
+        alert_contacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/AlertContact"
     ErrorResponse:
       description: >
         Used for BadRequest and Unauthorized
@@ -421,12 +524,21 @@ components:
               - $ref: "#/components/schemas/ErrorResponse"
     SingleMonitorResponse:
       description: >
-        Returns the affected Monitor
+        Returns the affected Monitor or an Error
       content:
         application/json:
           schema:
             oneOf:
               - $ref: "#/components/schemas/SingleMonitorResponse"
+              - $ref: "#/components/schemas/ErrorResponse"
+    ListAlertContactResponse:
+      description: >
+        Returns a list of Alert Contacts or an Error
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/ListAlertContactResponse"
               - $ref: "#/components/schemas/ErrorResponse"
   parameters:
     MonitorId:
@@ -907,3 +1019,13 @@ components:
 
           * 1 - true
       description: For ignoring SSL certificate related errors
+    AlertContacts:
+      in: query
+      name: alert_contacts
+      required: false
+      schema:
+        type: string
+      description: >
+        If not used, will return all alert contacts in an account.
+
+        Else, it is possible to define any number of alert contacts with their IDs like: alert_contacts=236-1782-4790

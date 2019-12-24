@@ -1,3 +1,9 @@
 - In error responses, official docs say "reason" is "text" but its actually an object.
 - /deleteMonitor, editMonitor, resetMonitor: uses SingleMonitorResponse, but does not return MonitorState
 - Using "oneOf" for responses means swagger editor cannot (at time of writing) generate the examples.
+
+Suggestions:
+
+- /getMonitors response, offset+limit+total are in a pagination object but for
+  /getAlertContacts they are in the root level. Ideally only one convention should
+  be used for consistency.
