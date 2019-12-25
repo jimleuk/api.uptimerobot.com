@@ -148,10 +148,8 @@ paths:
         The list of maintenance windows can be called with this method
       tags:
         - Maintenance Windows
-      parameters:
-        - $ref: "#/components/parameters/MWindows"
-        # - $ref: "#/components/parameters/PaginationOffset"
-        # - $ref: "#/components/parameters/PaginationLimit"
+      requestBody:
+        $ref: "#/components/requestBodies/ListMWindowRequest"
       responses:
         "200":
           $ref: "#/components/responses/ListMaintenanceWindowResponse"
@@ -161,12 +159,8 @@ paths:
         New maintenance windows can be created using this method
       tags:
         - Maintenance Windows
-      parameters:
-        - $ref: "#/components/parameters/MWindowFriendlyNameRequired"
-        - $ref: "#/components/parameters/MWindowTypeRequired"
-        - $ref: "#/components/parameters/MWindowValueRequired"
-        - $ref: "#/components/parameters/MWindowStartTimeRequired"
-        - $ref: "#/components/parameters/MWindowDurationRequired"
+      requestBody:
+        $ref: "#/components/requestBodies/CreateMWindowRequest"
       responses:
         "200":
           $ref: "#/components/responses/SingleMaintenanceWindowResponse"
@@ -176,12 +170,8 @@ paths:
         New maintenance windows can be created using this method
       tags:
         - Maintenance Windows
-      parameters:
-        - $ref: "#/components/parameters/MWindowIdRequired"
-        - $ref: "#/components/parameters/MWindowFriendlyName"
-        - $ref: "#/components/parameters/MWindowValue"
-        - $ref: "#/components/parameters/MWindowStartTime"
-        - $ref: "#/components/parameters/MWindowDuration"
+      requestBody:
+        $ref: "#/components/requestBodies/EditMWindowRequest"
       responses:
         "200":
           $ref: "#/components/responses/SingleMaintenanceWindowResponse"
@@ -191,8 +181,8 @@ paths:
         Maintenance windows can be deleted using this method
       tags:
         - Maintenance Windows
-      parameters:
-        - $ref: "#/components/parameters/MWindowIdRequired"
+      requestBody:
+        $ref: "#/components/requestBodies/DeleteMWindowRequest"
       responses:
         "200":
           $ref: "#/components/responses/SingleMaintenanceWindowResponse"
@@ -1008,6 +998,61 @@ components:
           type: string
           description: >
             The ID of the alert contact.
+    ListMWindowRequest:
+      type: object
+      properties:
+        mwindows:
+          type: string
+          description: >
+            If not used, will return all mwindows in an account.
+
+            Else, it is possible to define any number of mwindows with their IDs like: mwindows=236-1782-4790
+        offset:
+          $ref: "#/components/schemas/PaginationOffset"
+        limit:
+          $ref: "#/components/schemas/PaginationLimit"
+    SingleMWindowRequest:
+      type: object
+      properties:
+        friendly_name:
+          type: string
+          description: >
+            Friendly name of the maintenance window (for making it easier to distinguish from others)
+        value:
+          type: string
+          description: >
+            Only needed for weekly and monthly maintenance windows and must be sent like 2-4-5 for Tuesday-Thursday-Friday or 10-17-26 for the days of the month
+        start_time:
+          type: string
+          description: >
+            The start datetime
+        duration:
+          type: number
+          description: >
+            How many minutes the maintenance window will be active for
+    CreateMWindowRequest:
+      type: object
+      properties:
+        type:
+          allOf:
+            - $ref: "#/components/schemas/MaintenanceWindowType"
+          description: >
+            The type of the maintenance window
+
+            * 1 - Once
+
+            * 2 - Daily
+
+            * 3 - Weekly
+
+            * 4 - Monthly
+    EditMWindowRequest:
+      type: object
+      properties:
+        id:
+          type: number
+          description: >
+            The ID of the maintenance window
     AccountResponse:
       description: >
         Returns an account
@@ -1326,6 +1371,53 @@ components:
             required:
               - api_key
               - id
+    ListMWindowRequest:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseRequest"
+              - $ref: "#/components/schemas/ListMWindowRequest"
+            required:
+              - api_key
+    CreateMWindowRequest:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseRequest"
+              - $ref: "#/components/schemas/SingleMWindowRequest"
+              - $ref: "#/components/schemas/CreateMWindowRequest"
+            required:
+              - api_key
+              - friendly_name
+              - type
+              - value
+    EditMWindowRequest:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseRequest"
+              - $ref: "#/components/schemas/SingleMWindowRequest"
+              - $ref: "#/components/schemas/EditMWindowRequest"
+            required:
+              - api_key
+              - id
+    DeleteMWindowRequest:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseRequest"
+              - $ref: "#/components/schemas/EditMWindowRequest"
+            required:
+              - api_key
+              - id
   parameters:
     MonitorStatusBOOL:
       in: query
@@ -1339,104 +1431,6 @@ components:
 
           * 1 for resume
       description: Sets the status of the monitor
-    MWindows:
-      in: query
-      name: mwindows
-      required: false
-      schema:
-        type: string
-      description: >
-        If not used, will return all mwindows in an account.
-
-        Else, it is possible to define any number of mwindows with their IDs like: mwindows=236-1782-4790
-    MWindowIdRequired:
-      in: query
-      name: id
-      required: true
-      schema:
-        $ref: "#/components/schemas/MaintenanceWindowId"
-      description: >
-        The ID of the maintenance window
-    MWindowFriendlyNameRequired:
-      in: query
-      name: friendly_name
-      required: true
-      schema:
-        type: string
-      description: >
-        Friendly name of the maintenance window (for making it easier to distinguish from others)
-    MWindowFriendlyName:
-      in: query
-      name: friendly_name
-      required: false
-      schema:
-        type: string
-      description: >
-        Friendly name of the maintenance window (for making it easier to distinguish from others)
-    MWindowTypeRequired:
-      in: query
-      name: type
-      required: true
-      schema:
-        $ref: "#/components/schemas/MaintenanceWindowType"
-      description: >
-        The type of the maintenance window
-
-        * 1 - Once
-
-        * 2 - Daily
-
-        * 3 - Weekly
-
-        * 4 - Monthly
-    MWindowValueRequired:
-      in: query
-      name: value
-      required: true
-      schema:
-        type: string
-      description: >
-        Only needed for weekly and monthly maintenance windows and must be sent like 2-4-5 for Tuesday-Thursday-Friday or 10-17-26 for the days of the month
-    MWindowValue:
-      in: query
-      name: value
-      required: false
-      schema:
-        type: string
-      description: >
-        Only needed for weekly and monthly maintenance windows and must be sent like 2-4-5 for Tuesday-Thursday-Friday or 10-17-26 for the days of the month
-    MWindowStartTimeRequired:
-      in: query
-      name: start_time
-      required: true
-      schema:
-        type: string
-      description: >
-        The start datetime
-    MWindowStartTime:
-      in: query
-      name: start_time
-      required: false
-      schema:
-        type: string
-      description: >
-        The start datetime
-    MWindowDurationRequired:
-      in: query
-      name: duration
-      required: true
-      schema:
-        type: number
-      description: >
-        How many minutes the maintenance window will be active for
-    MWindowDuration:
-      in: query
-      name: duration
-      required: false
-      schema:
-        type: number
-      description: >
-        How many minutes the maintenance window will be active for
     PSPs:
       in: query
       name: psps
