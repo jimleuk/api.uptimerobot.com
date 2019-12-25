@@ -20,6 +20,8 @@ tags:
     description: Managing your alert contacts
   - name: Maintenance Windows
     description: Managing your maintenance windows
+  - name: Public Status Pages
+    description: Managing your public status pages
 paths:
   /getAccountDetails:
     post:
@@ -262,6 +264,66 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/SingleMaintenanceWindowResponse"
+  /getPSPs:
+    post:
+      summary: >
+        The list of public status pages can be called with this method
+      tags:
+        - Public Status Pages
+      parameters:
+        - $ref: "#/components/parameters/PSPs"
+        - $ref: "#/components/parameters/PaginationOffset"
+        - $ref: "#/components/parameters/PaginationLimit"
+      responses:
+        "200":
+          $ref: "#/components/responses/ListPublicStatusPageResponse"
+  /newPSP:
+    post:
+      summary: >
+        New public status pages can be created using this method
+      tags:
+        - Public Status Pages
+      parameters:
+        - $ref: "#/components/parameters/PSPTypeRequired"
+        - $ref: "#/components/parameters/PSPFriendlyNameRequired"
+        - $ref: "#/components/parameters/PSPMonitorsRequired"
+        - $ref: "#/components/parameters/PSPCustomDomain"
+        - $ref: "#/components/parameters/PSPPassword"
+        - $ref: "#/components/parameters/PSPSort"
+        - $ref: "#/components/parameters/PSPWhitelabel"
+        - $ref: "#/components/parameters/PSPState"
+      responses:
+        "200":
+          $ref: "#/components/responses/SinglePublicStatusPageResponse"
+  /editPSP:
+    post:
+      summary: >
+        Public status pages can be edited using this method
+      tags:
+        - Public Status Pages
+      parameters:
+        - $ref: "#/components/parameters/PSPIdRequired"
+        - $ref: "#/components/parameters/PSPFriendlyName"
+        - $ref: "#/components/parameters/PSPMonitors"
+        - $ref: "#/components/parameters/PSPCustomDomain"
+        - $ref: "#/components/parameters/PSPPassword"
+        - $ref: "#/components/parameters/PSPSort"
+        - $ref: "#/components/parameters/PSPWhitelabel"
+        - $ref: "#/components/parameters/PSPState"
+      responses:
+        "200":
+          $ref: "#/components/responses/SinglePublicStatusPageResponse"
+  /deletePSP:
+    post:
+      summary: >
+        Public status pages can be deleted using this method.
+      tags:
+        - Public Status Pages
+      parameters:
+        - $ref: "#/components/parameters/PSPIdRequired"
+      responses:
+        "200":
+          $ref: "#/components/responses/SinglePublicStatusPageResponse"
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -578,6 +640,66 @@ components:
         * 0 - paused
 
         * 1 - active
+    PublicStatusPage:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/PublicStatusPageId"
+        friendly_name:
+          type: string
+          description: >
+            Friendly name of the status page (for making it easier to distinguish from others)
+        monitors:
+          type: string
+          description: >
+            The list of monitorIDs to be displayed in status page (the values are seperated with "-" or 0 for all monitors)
+        sort:
+          $ref: "#/components/schemas/PublicStatusPageSort"
+        status:
+          $ref: "#/components/schemas/PublicStatusPageState"
+        standard_url:
+          type: string
+          description: >
+            The uptimerobot.com hosted url eg. https://stats.uptimerobot.com/Z7f2g
+        custom_url:
+          type: string
+          description: >
+            The domain or subdomain that the status page will run on. eg. "https://status.mydomain.com"
+    PublicStatusPageId:
+      type: number
+      description: >
+        The ID of the status page
+    PublicStatusPageSort:
+      type: number
+      enum: [1,2,3,4]
+      description: >
+        The sorting of the status page
+
+        * 1 - friendly name (a-z)
+
+        * 2 - friendly name (z-a)
+
+        * 3 - status (up-down-paused)
+
+        * 4 - status (down-up-paused)
+    PublicStatusPageState:
+      type: number
+      enum: [0,1]
+      description: >
+        The status of the status page
+
+        * 0 - paused
+
+        * 1 - active
+    PublicStatusPageType:
+      type: number
+      enum: [1,2]
+      description: >
+        Sets the type of status page
+
+        * 1 - for all monitors
+
+        * 2 - for selected monitors
     AccountResponse:
       description: >
         Returns an account
@@ -662,6 +784,32 @@ components:
           $ref: "#/components/schemas/Stat"
         mwindow:
           $ref: "#/components/schemas/MaintenanceWindow"
+    ListPublicStatusPageResponse:
+      description: >
+        Returns a list of Public Status Pages or an error
+      type: object
+      properties:
+        stat:
+          $ref: "#/components/schemas/Stat"
+        limit:
+          type: number
+        offset:
+          type: number
+        total:
+          type: number
+        psps:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicStatusPage"
+    SinglePublicStatusPageResponse:
+      description: >
+        Returns a Public Status Page or an error
+      type: object
+      properties:
+        stat:
+          $ref: "#/components/schemas/Stat"
+        psp:
+          $ref: "#/components/schemas/PublicStatusPage"
     ErrorResponse:
       description: >
         Used for BadRequest and Unauthorized
@@ -749,6 +897,24 @@ components:
           schema:
             oneOf:
               - $ref: "#/components/schemas/SingleMaintenanceWindowResponse"
+              - $ref: "#/components/schemas/ErrorResponse"
+    ListPublicStatusPageResponse:
+      description: >
+        Returns a list of Public Status Pages or an error
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/ListPublicStatusPageResponse"
+              - $ref: "#/components/schemas/ErrorResponse"
+    SinglePublicStatusPageResponse:
+      description: >
+        Returns a Public Status Page or an error
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/SinglePublicStatusPageResponse"
               - $ref: "#/components/schemas/ErrorResponse"
   parameters:
     MonitorIdRequired:
@@ -1397,3 +1563,122 @@ components:
         type: number
       description: >
         How many minutes the maintenance window will be active for
+    PSPs:
+      in: query
+      name: psps
+      required: false
+      schema:
+        type: string
+      description: >
+        If not used, will return all public status pages in an account.
+        
+        Else, it is possible to define any number of public status pages with their IDs like: psps=236-1782-4790
+    PSPIdRequired:
+      in: query
+      name: id
+      required: true
+      schema:
+        type: number
+      description: >
+        The ID of the status page
+    PSPFriendlyNameRequired:
+      in: query
+      name: friendly_name
+      required: true
+      schema:
+        type: string
+      description: >
+        Friendly name of the status page (for making it easier to distinguish from others)
+    PSPFriendlyName:
+      in: query
+      name: friendly_name
+      required: false
+      schema:
+        type: string
+      description: >
+        Friendly name of the status page (for making it easier to distinguish from others)
+    PSPTypeRequired:
+      in: query
+      name: type
+      required: true
+      schema:
+        $ref: "#/components/schemas/PublicStatusPageType"
+      description:
+        Sets the type of status page
+
+        * 1 - for all monitors
+
+        * 2 - for selected monitors
+    PSPMonitorsRequired:
+      in: query
+      name: monitors
+      required: true
+      schema:
+        type: string
+      description: >
+        The monitors to be displayed can be sent as 15830-32696-83920. Or 0 for displaying all monitors
+    PSPMonitors:
+      in: query
+      name: monitors
+      required: false
+      schema:
+        type: string
+      description: >
+        The monitors to be displayed can be sent as 15830-32696-83920. Or 0 for displaying all monitors
+    PSPCustomDomain:
+      in: query
+      name: custom_domain
+      required: false
+      schema:
+        type: string
+      description: >
+        The domain or subdomain that the status page will run on. eg. "https://status.mydomain.com"
+    PSPPassword:
+      in: query
+      name: password
+      required: false
+      schema:
+        type: string
+      description: >
+        require this password to access the status page
+    PSPSort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        $ref: "#/components/schemas/PublicStatusPageSort"
+      description: >
+        The sorting of the status page
+
+        * 1 - friendly name (a-z)
+
+        * 2 - friendly name (z-a)
+
+        * 3 - status (up-down-paused)
+
+        * 4 - status (down-up-paused)
+    PSPWhitelabel:
+      in: query
+      name: hide_url_links
+      required: false
+      schema:
+        type: number
+        enum: [0, 1]
+      description: >
+        PRO: For hiding the Uptime Robot links and only available in the Pro Plan
+
+        * 0 - false
+
+        * 1 - true
+    PSPState:
+      in: query
+      name: status
+      required: false
+      schema:
+        $ref: "#/components/schemas/PublicStatusPageState"
+      description: >
+        The status of the status page
+
+        * 0 - paused
+
+        * 1 - active
