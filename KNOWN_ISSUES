@@ -2,6 +2,8 @@
 - /deleteMonitor, editMonitor, resetMonitor: uses SingleMonitorResponse, but returns Partial<SingleMonitorResponse>
 - Using "oneOf" for responses means swagger editor cannot (at time of writing) generate the examples.
 - /newAlertContact, editAlertContact response uses SingleAlertContactResponse but returns Partial<SingleAlertContactResponse>
+- MWindow>user: unsure what this is
+- MWindow>value: unsure how to use this
 
 Suggestions:
 
@@ -10,3 +12,4 @@ Suggestions:
   be used for consistency.
 - inconsistent casing in responses eg. "alert_contacts" and "alertcontact".
 - response objects should not be partial eg. /newAlertContact should return the AlertContact object
+- avoid overloaded parameters eg. MWindow>start_time: "Unix time for type=1 and HH:mm for other types"

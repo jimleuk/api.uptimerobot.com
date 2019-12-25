@@ -18,6 +18,8 @@ tags:
     description: Managing your monitors
   - name: Alert Contacts
     description: Managing your alert contacts
+  - name: Maintenance Windows
+    description: Managing your maintenance windows
 paths:
   /getAccountDetails:
     post:
@@ -77,9 +79,9 @@ paths:
       tags:
         - Monitors
       parameters:
-        - $ref: "#/components/parameters/MonitorFriendlyName"
-        - $ref: "#/components/parameters/MonitorUrl"
-        - $ref: "#/components/parameters/MonitorType"
+        - $ref: "#/components/parameters/MonitorFriendlyNameRequired"
+        - $ref: "#/components/parameters/MonitorUrlRequired"
+        - $ref: "#/components/parameters/MonitorTypeRequired"
         - $ref: "#/components/parameters/MonitorSubType"
         - $ref: "#/components/parameters/MonitorPort"
         - $ref: "#/components/parameters/MonitorKeywordType"
@@ -109,9 +111,9 @@ paths:
       tags:
         - Monitors
       parameters:
-        - $ref: "#/components/parameters/MonitorId"
-        - $ref: "#/components/parameters/MonitorFriendlyName"
-        - $ref: "#/components/parameters/MonitorUrl"
+        - $ref: "#/components/parameters/MonitorIdRequired"
+        - $ref: "#/components/parameters/MonitorFriendlyNameRequired"
+        - $ref: "#/components/parameters/MonitorUrlRequired"
         - $ref: "#/components/parameters/MonitorSubType"
         - $ref: "#/components/parameters/MonitorPort"
         - $ref: "#/components/parameters/MonitorKeywordType"
@@ -139,7 +141,7 @@ paths:
       tags:
         - Monitors
       parameters:
-        - $ref: "#/components/parameters/MonitorId"
+        - $ref: "#/components/parameters/MonitorIdRequired"
       responses:
         "200":
           $ref: "#/components/responses/SingleMonitorResponse"
@@ -150,7 +152,7 @@ paths:
       tags:
         - Monitors
       parameters:
-        - $ref: "#/components/parameters/MonitorId"
+        - $ref: "#/components/parameters/MonitorIdRequired"
       responses:
         "200":
           $ref: "#/components/responses/SingleMonitorResponse"
@@ -176,8 +178,8 @@ paths:
       tags:
         - Alert Contacts
       parameters:
-        - $ref: "#/components/parameters/AlertContactType"
-        - $ref: "#/components/parameters/AlertContactValue"
+        - $ref: "#/components/parameters/AlertContactTypeRequired"
+        - $ref: "#/components/parameters/AlertContactValueRequired"
         - $ref: "#/components/parameters/AlertContactFriendlyName"
       responses:
         "200":
@@ -189,7 +191,7 @@ paths:
       tags:
         - Alert Contacts
       parameters:
-        - $ref: "#/components/parameters/AlertContactId"
+        - $ref: "#/components/parameters/AlertContactIdRequired"
         - $ref: "#/components/parameters/AlertContactFriendlyName"
         - $ref: "#/components/parameters/AlertContactWebhookValue"
       responses:
@@ -202,10 +204,64 @@ paths:
       tags:
         - Alert Contacts
       parameters:
-        - $ref: "#/components/parameters/AlertContactId"
+        - $ref: "#/components/parameters/AlertContactIdRequired"
       responses:
         "200":
           $ref: "#/components/responses/SingleAlertContactResponse"
+  /getMWindows:
+    post:
+      summary: >
+        The list of maintenance windows can be called with this method
+      tags:
+        - Maintenance Windows
+      parameters:
+        - $ref: "#/components/parameters/MWindows"
+        - $ref: "#/components/parameters/PaginationOffset"
+        - $ref: "#/components/parameters/PaginationLimit"
+      responses:
+        "200":
+          $ref: "#/components/responses/ListMaintenanceWindowResponse"
+  /newMWindow:
+    post:
+      summary: >
+        New maintenance windows can be created using this method
+      tags:
+        - Maintenance Windows
+      parameters:
+        - $ref: "#/components/parameters/MWindowFriendlyNameRequired"
+        - $ref: "#/components/parameters/MWindowTypeRequired"
+        - $ref: "#/components/parameters/MWindowValueRequired"
+        - $ref: "#/components/parameters/MWindowStartTimeRequired"
+        - $ref: "#/components/parameters/MWindowDurationRequired"
+      responses:
+        "200":
+          $ref: "#/components/responses/SingleMaintenanceWindowResponse"
+  /EditMWindow:
+    post:
+      summary: >
+        New maintenance windows can be created using this method
+      tags:
+        - Maintenance Windows
+      parameters:
+        - $ref: "#/components/parameters/MWindowIdRequired"
+        - $ref: "#/components/parameters/MWindowFriendlyName"
+        - $ref: "#/components/parameters/MWindowValue"
+        - $ref: "#/components/parameters/MWindowStartTime"
+        - $ref: "#/components/parameters/MWindowDuration"
+      responses:
+        "200":
+          $ref: "#/components/responses/SingleMaintenanceWindowResponse"
+  /DeleteMWindow:
+    post:
+      summary: >
+        Maintenance windows can be deleted using this method
+      tags:
+        - Maintenance Windows
+      parameters:
+        - $ref: "#/components/parameters/MWindowIdRequired"
+      responses:
+        "200":
+          $ref: "#/components/responses/SingleMaintenanceWindowResponse"
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -465,6 +521,63 @@ components:
 
         Possible values:
         0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,20,30,35,40,45,50,55,60
+    MaintenanceWindow:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/MaintenanceWindowId"
+        user:
+          type: number
+          description: >
+            TODO: no description in official docs
+        type:
+          $ref: "#/components/schemas/MaintenanceWindowType"
+        friendly_name:
+          type: string
+          description: >
+            Friendly name of the maintenance window (for making it easier to distinguish from others)
+        start_time:
+          type: string
+          description: >
+            Start time of the maintenance windows
+
+            Unix time for type=1 and HH:mm for other types
+        duration:
+          type: number
+          description: >
+            Duration of the maintenance windows in minutes
+        value:
+          type: string
+          description: >
+            Seperated with "-" and used only for weekly and monthly maintenance windows
+        status:
+          $ref: "#/components/schemas/MaintenanceWindowState"
+    MaintenanceWindowId:
+      type: number
+      description: >
+        The ID of the maintenance window
+    MaintenanceWindowType:
+      type: number
+      enum: [1,2,3,4]
+      description: >
+        The type of the maintenance window
+
+        * 1 - Once
+
+        * 2 - Daily
+
+        * 3 - Weekly
+
+        * 4 - Monthly
+    MaintenanceWindowState:
+      type: number
+      enum: [0,1]
+      description: >
+        The status of the maintenance window
+
+        * 0 - paused
+
+        * 1 - active
     AccountResponse:
       description: >
         Returns an account
@@ -527,6 +640,28 @@ components:
           $ref: "#/components/schemas/Stat"
         alertcontact:
           $ref: "#/components/schemas/AlertContact"
+    ListMaintenanceWindowResponse:
+      description: >
+        Returns a list of Maintenance Windows or an error
+      type: object
+      properties:
+        stat:
+          $ref: "#/components/schemas/Stat"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        mwindows:
+          type: array
+          items:
+            $ref: "#/components/schemas/MaintenanceWindow"
+    SingleMaintenanceWindowResponse:
+      description: >
+        Returns a Maintenance Window or an error
+      type: object
+      properties:
+        stat:
+          $ref: "#/components/schemas/Stat"
+        mwindow:
+          $ref: "#/components/schemas/MaintenanceWindow"
     ErrorResponse:
       description: >
         Used for BadRequest and Unauthorized
@@ -597,8 +732,26 @@ components:
             oneOf:
               - $ref: "#/components/schemas/SingleAlertContactResponse"
               - $ref: "#/components/schemas/ErrorResponse"
+    ListMaintenanceWindowResponse:
+      description: >
+        Returns a list of Maintenance Windows or an error
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/ListMaintenanceWindowResponse"
+              - $ref: "#/components/schemas/ErrorResponse"
+    SingleMaintenanceWindowResponse:
+      description: >
+        Returns a Maintenance Window or an error
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/SingleMaintenanceWindowResponse"
+              - $ref: "#/components/schemas/ErrorResponse"
   parameters:
-    MonitorId:
+    MonitorIdRequired:
       in: query
       name: id
       required: true
@@ -905,21 +1058,21 @@ components:
         type: string
       description: >
         A keyword of your choice to search within url and friendly_name and get filtered results
-    MonitorFriendlyName:
+    MonitorFriendlyNameRequired:
       in: query
       name: friendly_name
       required: true
       schema:
         type: string
       description: The friendly name of the monitor
-    MonitorUrl:
+    MonitorUrlRequired:
       in: query
       name: url
       required: true
       schema:
         type: string
       description: The URL/IP of the monitor
-    MonitorType:
+    MonitorTypeRequired:
       in: query
       name: type
       required: true
@@ -1086,7 +1239,7 @@ components:
         If not used, will return all alert contacts in an account.
 
         Else, it is possible to define any number of alert contacts with their IDs like: alert_contacts=236-1782-4790
-    AlertContactType:
+    AlertContactTypeRequired:
       in: query
       name: type
       required: true
@@ -1114,7 +1267,7 @@ components:
         * 10 - HipChat
 
         * 11 - Slack
-    AlertContactValue:
+    AlertContactValueRequired:
       in: query
       name: value
       required: true
@@ -1138,11 +1291,109 @@ components:
         type: string
       description: >
         Friendly name of the alert contact (for making it easier to distinguish from others)
-    AlertContactId:
+    AlertContactIdRequired:
       in: query
       name: id
       required: true
       schema:
-          type: string
+        type: string
       description: >
         The ID of the alert contact.
+    MWindows:
+      in: query
+      name: mwindows
+      required: false
+      schema:
+        type: string
+      description: >
+        If not used, will return all mwindows in an account.
+
+        Else, it is possible to define any number of mwindows with their IDs like: mwindows=236-1782-4790
+    MWindowIdRequired:
+      in: query
+      name: id
+      required: true
+      schema:
+        $ref: "#/components/schemas/MaintenanceWindowId"
+      description: >
+        The ID of the maintenance window
+    MWindowFriendlyNameRequired:
+      in: query
+      name: friendly_name
+      required: true
+      schema:
+        type: string
+      description: >
+        Friendly name of the maintenance window (for making it easier to distinguish from others)
+    MWindowFriendlyName:
+      in: query
+      name: friendly_name
+      required: false
+      schema:
+        type: string
+      description: >
+        Friendly name of the maintenance window (for making it easier to distinguish from others)
+    MWindowTypeRequired:
+      in: query
+      name: type
+      required: true
+      schema:
+        $ref: "#/components/schemas/MaintenanceWindowType"
+      description: >
+        The type of the maintenance window
+
+        * 1 - Once
+
+        * 2 - Daily
+
+        * 3 - Weekly
+
+        * 4 - Monthly
+    MWindowValueRequired:
+      in: query
+      name: value
+      required: true
+      schema:
+        type: string
+      description: >
+        Only needed for weekly and monthly maintenance windows and must be sent like 2-4-5 for Tuesday-Thursday-Friday or 10-17-26 for the days of the month
+    MWindowValue:
+      in: query
+      name: value
+      required: false
+      schema:
+        type: string
+      description: >
+        Only needed for weekly and monthly maintenance windows and must be sent like 2-4-5 for Tuesday-Thursday-Friday or 10-17-26 for the days of the month
+    MWindowStartTimeRequired:
+      in: query
+      name: start_time
+      required: true
+      schema:
+        type: string
+      description: >
+        The start datetime
+    MWindowStartTime:
+      in: query
+      name: start_time
+      required: false
+      schema:
+        type: string
+      description: >
+        The start datetime
+    MWindowDurationRequired:
+      in: query
+      name: duration
+      required: true
+      schema:
+        type: number
+      description: >
+        How many minutes the maintenance window will be active for
+    MWindowDuration:
+      in: query
+      name: duration
+      required: false
+      schema:
+        type: number
+      description: >
+        How many minutes the maintenance window will be active for
