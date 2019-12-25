@@ -192,10 +192,8 @@ paths:
         The list of public status pages can be called with this method
       tags:
         - Public Status Pages
-      parameters:
-        - $ref: "#/components/parameters/PSPs"
-        # - $ref: "#/components/parameters/PaginationOffset"
-        # - $ref: "#/components/parameters/PaginationLimit"
+      requestBody:
+        $ref: "#/components/requestBodies/ListPublicStatusPageRequest"
       responses:
         "200":
           $ref: "#/components/responses/ListPublicStatusPageResponse"
@@ -205,15 +203,8 @@ paths:
         New public status pages can be created using this method
       tags:
         - Public Status Pages
-      parameters:
-        - $ref: "#/components/parameters/PSPTypeRequired"
-        - $ref: "#/components/parameters/PSPFriendlyNameRequired"
-        - $ref: "#/components/parameters/PSPMonitorsRequired"
-        - $ref: "#/components/parameters/PSPCustomDomain"
-        - $ref: "#/components/parameters/PSPPassword"
-        - $ref: "#/components/parameters/PSPSort"
-        - $ref: "#/components/parameters/PSPWhitelabel"
-        - $ref: "#/components/parameters/PSPState"
+      requestBody:
+        $ref: "#/components/requestBodies/CreatePublicStatusPageRequest"
       responses:
         "200":
           $ref: "#/components/responses/SinglePublicStatusPageResponse"
@@ -223,15 +214,8 @@ paths:
         Public status pages can be edited using this method
       tags:
         - Public Status Pages
-      parameters:
-        - $ref: "#/components/parameters/PSPIdRequired"
-        - $ref: "#/components/parameters/PSPFriendlyName"
-        - $ref: "#/components/parameters/PSPMonitors"
-        - $ref: "#/components/parameters/PSPCustomDomain"
-        - $ref: "#/components/parameters/PSPPassword"
-        - $ref: "#/components/parameters/PSPSort"
-        - $ref: "#/components/parameters/PSPWhitelabel"
-        - $ref: "#/components/parameters/PSPState"
+      requestBody:
+        $ref: "#/components/requestBodies/EditPublicStatusPageRequest"
       responses:
         "200":
           $ref: "#/components/responses/SinglePublicStatusPageResponse"
@@ -241,8 +225,8 @@ paths:
         Public status pages can be deleted using this method.
       tags:
         - Public Status Pages
-      parameters:
-        - $ref: "#/components/parameters/PSPIdRequired"
+      requestBody:
+        $ref: "#/components/requestBodies/DeletePublicStatusPageRequest"
       responses:
         "200":
           $ref: "#/components/responses/SinglePublicStatusPageResponse"
@@ -1053,6 +1037,63 @@ components:
           type: number
           description: >
             The ID of the maintenance window
+    ListPublicStatusPageRequest:
+      type: object
+      properties:
+        psps:
+          type: string
+          description: >
+            If not used, will return all public status pages in an account.
+            
+            Else, it is possible to define any number of public status pages with their IDs like: psps=236-1782-4790
+        offset:
+          $ref: "#/components/schemas/PaginationOffset"
+        limit:
+          $ref: "#/components/schemas/PaginationLimit"
+    SinglePublicStatusPageRequest:
+      type: object
+      properties:
+        friendly_name:
+          type: string
+          description: >
+            Friendly name of the status page (for making it easier to distinguish from others)
+        monitors:
+          type: string
+          description: >
+            The monitors to be displayed can be sent as 15830-32696-83920. Or 0 for displaying all monitors
+        custom_domain:
+          type: string
+          description: >
+            The domain or subdomain that the status page will run on. eg. "https://status.mydomain.com"
+        password:
+          type: string
+          description: >
+            require this password to access the status page
+        sort:
+          $ref: "#/components/schemas/PublicStatusPageSort"
+        hide_url_links:
+          type: number
+          enum: [0, 1]
+          description: >
+            PRO: For hiding the Uptime Robot links and only available in the Pro Plan
+
+            * 0 - false
+
+            * 1 - true
+        status:
+          $ref: "#/components/schemas/PublicStatusPageState"
+    CreatePublicStatusPageRequest:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/PublicStatusPageType"
+    EditPublicStatusPageRequest:
+      type: object
+      properties:
+        id:
+          type: number
+          description: >
+            The ID of the status page
     AccountResponse:
       description: >
         Returns an account
@@ -1418,135 +1459,51 @@ components:
             required:
               - api_key
               - id
-  parameters:
-    MonitorStatusBOOL:
-      in: query
-      name: status
-      required: false
-      schema:
-        type: number
-        enum: [0, 1]
-        description: >
-          * 0 for pause
-
-          * 1 for resume
-      description: Sets the status of the monitor
-    PSPs:
-      in: query
-      name: psps
-      required: false
-      schema:
-        type: string
-      description: >
-        If not used, will return all public status pages in an account.
-        
-        Else, it is possible to define any number of public status pages with their IDs like: psps=236-1782-4790
-    PSPIdRequired:
-      in: query
-      name: id
+    ListPublicStatusPageRequest:
       required: true
-      schema:
-        type: number
-      description: >
-        The ID of the status page
-    PSPFriendlyNameRequired:
-      in: query
-      name: friendly_name
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseRequest"
+              - $ref: "#/components/schemas/ListPublicStatusPageRequest"
+            required:
+              - api_key
+    CreatePublicStatusPageRequest:
       required: true
-      schema:
-        type: string
-      description: >
-        Friendly name of the status page (for making it easier to distinguish from others)
-    PSPFriendlyName:
-      in: query
-      name: friendly_name
-      required: false
-      schema:
-        type: string
-      description: >
-        Friendly name of the status page (for making it easier to distinguish from others)
-    PSPTypeRequired:
-      in: query
-      name: type
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseRequest"
+              - $ref: "#/components/schemas/SinglePublicStatusPageRequest"
+              - $ref: "#/components/schemas/CreatePublicStatusPageRequest"
+            required:
+              - api_key
+              - type
+              - friendly_name
+              - monitors
+    EditPublicStatusPageRequest:
       required: true
-      schema:
-        $ref: "#/components/schemas/PublicStatusPageType"
-      description:
-        Sets the type of status page
-
-        * 1 - for all monitors
-
-        * 2 - for selected monitors
-    PSPMonitorsRequired:
-      in: query
-      name: monitors
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseRequest"
+              - $ref: "#/components/schemas/SinglePublicStatusPageRequest"
+              - $ref: "#/components/schemas/EditPublicStatusPageRequest"
+            required:
+              - api_key
+              - id
+    DeletePublicStatusPageRequest:
       required: true
-      schema:
-        type: string
-      description: >
-        The monitors to be displayed can be sent as 15830-32696-83920. Or 0 for displaying all monitors
-    PSPMonitors:
-      in: query
-      name: monitors
-      required: false
-      schema:
-        type: string
-      description: >
-        The monitors to be displayed can be sent as 15830-32696-83920. Or 0 for displaying all monitors
-    PSPCustomDomain:
-      in: query
-      name: custom_domain
-      required: false
-      schema:
-        type: string
-      description: >
-        The domain or subdomain that the status page will run on. eg. "https://status.mydomain.com"
-    PSPPassword:
-      in: query
-      name: password
-      required: false
-      schema:
-        type: string
-      description: >
-        require this password to access the status page
-    PSPSort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        $ref: "#/components/schemas/PublicStatusPageSort"
-      description: >
-        The sorting of the status page
-
-        * 1 - friendly name (a-z)
-
-        * 2 - friendly name (z-a)
-
-        * 3 - status (up-down-paused)
-
-        * 4 - status (down-up-paused)
-    PSPWhitelabel:
-      in: query
-      name: hide_url_links
-      required: false
-      schema:
-        type: number
-        enum: [0, 1]
-      description: >
-        PRO: For hiding the Uptime Robot links and only available in the Pro Plan
-
-        * 0 - false
-
-        * 1 - true
-    PSPState:
-      in: query
-      name: status
-      required: false
-      schema:
-        $ref: "#/components/schemas/PublicStatusPageState"
-      description: >
-        The status of the status page
-
-        * 0 - paused
-
-        * 1 - active
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseRequest"
+              - $ref: "#/components/schemas/EditPublicStatusPageRequest"
+            required:
+              - api_key
+              - id
+    
