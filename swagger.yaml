@@ -102,10 +102,8 @@ paths:
         The list of alert contacts can be called with this method.
       tags:
         - Alert Contacts
-      parameters:
-        - $ref: "#/components/parameters/AlertContacts"
-        # - $ref: "#/components/parameters/PaginationOffset"
-        # - $ref: "#/components/parameters/PaginationLimit"
+      requestBody:
+        $ref: "#/components/requestBodies/ListAlertContactRequest"
       responses:
         "200":
           $ref: "#/components/responses/ListAlertContactResponse"
@@ -117,10 +115,8 @@ paths:
         The alert contacts created using the API are validated with the same way as they were created from uptimerobot.com (activation link for e-mails, etc.)
       tags:
         - Alert Contacts
-      parameters:
-        - $ref: "#/components/parameters/AlertContactTypeRequired"
-        - $ref: "#/components/parameters/AlertContactValueRequired"
-        - $ref: "#/components/parameters/AlertContactFriendlyName"
+      requestBody:
+        $ref: "#/components/requestBodies/CreateAlertContactRequest"
       responses:
         "200":
           $ref: "#/components/responses/SingleAlertContactResponse"
@@ -130,10 +126,8 @@ paths:
         Alert contacts can be edited using this method
       tags:
         - Alert Contacts
-      parameters:
-        - $ref: "#/components/parameters/AlertContactIdRequired"
-        - $ref: "#/components/parameters/AlertContactFriendlyName"
-        - $ref: "#/components/parameters/AlertContactWebhookValue"
+      requestBody:
+        $ref: "#/components/requestBodies/EditAlertContactRequest"
       responses:
         "200":
           $ref: "#/components/responses/SingleAlertContactResponse"
@@ -143,8 +137,8 @@ paths:
         Alert contacts can be deleted using this method
       tags:
         - Alert Contacts
-      parameters:
-        - $ref: "#/components/parameters/AlertContactIdRequired"
+      requestBody:
+        $ref: "#/components/requestBodies/DeleteAlertContactRequest"
       responses:
         "200":
           $ref: "#/components/responses/SingleAlertContactResponse"
@@ -658,6 +652,12 @@ components:
         format:
           type: string
           enum: [json, xml]
+          description: >
+            Responses can either be XML or JSON
+
+            * json
+
+            * xml
     ListMonitorRequest:
       type: object
       properties:
@@ -947,6 +947,67 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/MonitorId"
+    ListAlertContactRequest:
+      type: object
+      properties:
+        alert_contacts:
+          type: string
+          description: >
+            If not used, will return all alert contacts in an account.
+
+            Else, it is possible to define any number of alert contacts with their IDs like: alert_contacts=236-1782-4790
+        offset:
+          $ref: "#/components/schemas/PaginationOffset"
+        limit:
+          $ref: "#/components/schemas/PaginationLimit"
+    SingleAlertContactRequest:
+      type: object
+      properties:
+        friendly_name:
+          type: string
+          description: >
+            Friendly name of the alert contact (for making it easier to distinguish from others)
+        value:
+          type: string
+          description: >
+            Alert contact's address/phone
+
+            When editing: Can only be used if it is a web-hook alert contact
+    CreateAlertContactRequest:
+      type: object
+      properties:
+        type:
+          allOf:
+            - $ref: "#/components/schemas/AlertContactType"
+          description: >
+            The type of the alert contact notified (Zapier, HipChat and Slack are not supported in the newAlertContact method yet)
+
+            * 1 - SMS
+
+            * 2 - E-mail
+
+            * 3 - Twitter DM
+
+            * 4 - Boxcar
+
+            * 5 - Web-Hook
+
+            * 6 - Pushbullet
+
+            * 7 - Zapier
+
+            * 9 - Pushover
+
+            * 10 - HipChat
+
+            * 11 - Slack
+    EditAlertContactRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          description: >
+            The ID of the alert contact.
     AccountResponse:
       description: >
         Returns an account
@@ -1169,7 +1230,8 @@ components:
       content:
         application/x-www-form-urlencoded:
           schema:
-            $ref: "#/components/schemas/BaseRequest"
+            allOf:
+              - $ref: "#/components/schemas/BaseRequest"
             required:
               - api_key
     ListMonitorRequest:
@@ -1219,6 +1281,51 @@ components:
             required:
               - api_key
               - id
+    ListAlertContactRequest:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseRequest"
+              - $ref: "#/components/schemas/ListAlertContactRequest"
+            required:
+              - api_key
+    CreateAlertContactRequest:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseRequest"
+              - $ref: "#/components/schemas/SingleAlertContactRequest"
+              - $ref: "#/components/schemas/CreateAlertContactRequest"
+            required:
+              - api_key
+              - type
+    EditAlertContactRequest:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseRequest"
+              - $ref: "#/components/schemas/SingleAlertContactRequest"
+              - $ref: "#/components/schemas/EditAlertContactRequest"
+            required:
+              - api_key
+              - id
+    DeleteAlertContactRequest:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseRequest"
+              - $ref: "#/components/schemas/EditAlertContactRequest"
+            required:
+              - api_key
+              - id
   parameters:
     MonitorStatusBOOL:
       in: query
@@ -1232,76 +1339,6 @@ components:
 
           * 1 for resume
       description: Sets the status of the monitor
-    AlertContacts:
-      in: query
-      name: alert_contacts
-      required: false
-      schema:
-        type: string
-      description: >
-        If not used, will return all alert contacts in an account.
-
-        Else, it is possible to define any number of alert contacts with their IDs like: alert_contacts=236-1782-4790
-    AlertContactTypeRequired:
-      in: query
-      name: type
-      required: true
-      schema:
-        $ref: "#/components/schemas/AlertContactType"
-      description: >
-        The type of the alert contact notified (Zapier, HipChat and Slack are not supported in the newAlertContact method yet)
-
-        * 1 - SMS
-
-        * 2 - E-mail
-
-        * 3 - Twitter DM
-
-        * 4 - Boxcar
-
-        * 5 - Web-Hook
-
-        * 6 - Pushbullet
-
-        * 7 - Zapier
-
-        * 9 - Pushover
-
-        * 10 - HipChat
-
-        * 11 - Slack
-    AlertContactValueRequired:
-      in: query
-      name: value
-      required: true
-      schema:
-        type: string
-      description: >
-        Alert contact's address/phone
-    AlertContactWebhookValue:
-      in: query
-      name: value
-      required: false
-      schema:
-        type: string
-      description: >
-        Can only be used if it is a web-hook alert contact
-    AlertContactFriendlyName:
-      in: query
-      name: friendly_name
-      required: false
-      schema:
-        type: string
-      description: >
-        Friendly name of the alert contact (for making it easier to distinguish from others)
-    AlertContactIdRequired:
-      in: query
-      name: id
-      required: true
-      schema:
-        type: string
-      description: >
-        The ID of the alert contact.
     MWindows:
       in: query
       name: mwindows
