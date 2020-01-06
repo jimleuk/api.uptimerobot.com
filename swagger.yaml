@@ -1,19 +1,19 @@
 openapi: 3.0.0
 info:
   description: >
-    Unofficial Swagger Document for the UptimeRobot.com API.
+    Unofficial Swagger Document for the UptimeRobot API.
       
     **Disclaimer**: This document does not guarantee 100% parity with the official api.
     It is recommended that users double-check with the official api documentation before use.
-    If amendments are required, please file an [issue](https://github.com/jimleuk/api.uptimerobot.com/issues).
+    If amendments are required, please file an [issue](https://github.com/jimleuk/uptimerobot-swagger/issues).
       
     For official documentation, please visit [https://uptimerobot.com/api](https://uptimerobot.com/api)
   version: "2"
-  title: Api.UptimeRobot.com
+  title: Uptimerobot-swagger
   contact:
     name: Jim Le
     email: jim@height.io
-    url: https://github.com/jimleuk/api.uptimerobot.com
+    url: https://github.com/jimleuk/uptimerobot-swagger
 servers:
   - url: "https://api.uptimerobot.com/v2"
 tags:
